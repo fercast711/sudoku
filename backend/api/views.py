@@ -26,18 +26,94 @@ def solveSudokuModel(quiz):
             break
 
         probSolvedNew = probSolved * zeroMask
-        idx = np.argmax(probSolvedNew)
-        x, y = (idx // 9), (idx % 9)
+        highConfidence = probSolvedNew >= 0.97
+        mediumConfidence = probSolvedNew >= 0.95
+        lowerConfidence = probSolvedNew >= 0.9
 
-        quiz[x][y] = quizSolved[x][y]
+        if np.any(highConfidence):
+            for x, y in zip(*np.where(highConfidence)):
+                quiz[x][y] = quizSolved[x][y]
+            
+        elif np.any(mediumConfidence):
+            for x, y in zip(*np.where(mediumConfidence)):
+                quiz[x][y] = quizSolved[x][y]
+            
+        elif np.any(lowerConfidence):
+            for x, y in zip(*np.where(lowerConfidence)):
+                quiz[x][y] = quizSolved[x][y]
+                
+        else:
+            idx = np.argmax(probSolvedNew)
+            x, y = (idx // 9), (idx % 9)
+            quiz[x][y] = quizSolved[x][y]
+
+
         quiz = (quiz / 9) - 0.5
     
     return quiz
 
 def solveSudokuBacktracking(quiz):
-    def solveSudoku():
-        pass
-    pass
+
+    def findNumInRow(arr, row, num):
+        for i in range(9):
+            if arr[row][i] == num:
+                return True
+        
+        return False
+    
+    def findNumInCol(arr, col, num):
+        for i in range(9):
+            if arr[i][col] == num:
+                return True
+        
+        return False
+    
+    def findNumInBox(arr, row, col, num):
+        startRow = row - row % 3
+        startCol = col - col % 3
+
+        for i in range(3):
+            for j in range(3):
+                if arr[startRow+i][startCol+j] == num:
+                    return True
+        
+        return False
+
+    def checkLocationIsSafe(arr, row, col, num):
+        return not findNumInRow(arr, row, num) and not findNumInCol(arr, col, num) and not findNumInBox(arr, row, col, num)
+
+    def findEmptyCell(arr, l):
+        for row in range(9):
+            for col in range(9):
+                if arr[row][col] == 0:
+                    l[0] = row
+                    l[1] = col
+                    return True
+        
+        return False
+
+    def solveSudoku(arr):
+        l = [0,0]
+
+        if not findEmptyCell(arr, l):
+            return True
+        
+        row = l[0]
+        col = l[1]
+
+        for num in range(1,10):
+            if checkLocationIsSafe(arr, row, col, num):
+                arr[row][col] = num
+            
+                if solveSudoku(arr):
+                    return True
+                
+                arr[row][col] = 0
+        
+        return False
+    
+    if solveSudoku(quiz): return quiz
+    else: return None
 
 class Sudoku(APIView):
     def post(self, request):
@@ -58,6 +134,6 @@ class Sudoku(APIView):
             quiz = np.array(quiz).reshape((9,9))
             solution = solveSudokuBacktracking(quiz)
         
-        logging.debug(quiz)
+        logging.debug(solution)
         res = {'solution': solution}
         return Response(res, status=status.HTTP_200_OK)
