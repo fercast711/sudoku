@@ -147,6 +147,7 @@ def solveSudokuBacktracking(quiz, predict):
     if predict is None:
         if solveSudoku(quiz): return quiz
         else: return None
+        hola= 1
     else:
         if solveSudokuIA(quiz): return quiz
         else: return None
