@@ -5,30 +5,35 @@ import numpy as np
 from keras.api.models import load_model
 import logging
 from django.conf import settings
+import threading
 
 fmt = getattr(settings, 'LOG_FORMAT', None)
 lvl = getattr(settings, 'LOG_LEVEL', logging.DEBUG)
 
 logging.basicConfig(format=fmt, level=lvl)
 model = load_model("api/model_save.keras")
+solutions = [None, None]
 
 def solveSudokuModel(quiz):
-    quiz = (np.array(quiz).reshape(9,9,1)/9) - 0.5
+    quiz = np.array(quiz).reshape(9,9)
     while True:
-        predict = model.predict(quiz.reshape(1,9,9,1)).squeeze()
-        quizSolved = np.argmax(predict, axis=1).reshape((9, 9)) + 1
-        probSolved = np.around(np.max(predict, axis=1).reshape((9, 9)), 2)
-        
-        quiz = ((quiz+0.5)*9).reshape(9,9)
         zeroMask = (quiz==0)
 
         if zeroMask.sum() == 0:
             break
+        
+        quiz = (quiz / 9) - 0.5
+
+        predict = model.predict(quiz.reshape(1,9,9,1)).squeeze()
+        quizSolved = np.argmax(predict, axis=1).reshape((9, 9)) + 1
+        probSolved = np.around(np.max(predict, axis=1).reshape((9, 9)), 2)
+        
+        quiz = ((quiz+0.5)*9)
 
         probSolvedNew = probSolved * zeroMask
-        highConfidence = probSolvedNew >= 0.97
-        mediumConfidence = probSolvedNew >= 0.95
-        lowerConfidence = probSolvedNew >= 0.9
+        highConfidence = probSolvedNew > 0.97
+        mediumConfidence = probSolvedNew > 0.95
+        lowerConfidence = probSolvedNew > 0.93
 
         if np.any(highConfidence):
             for x, y in zip(*np.where(highConfidence)):
@@ -48,11 +53,10 @@ def solveSudokuModel(quiz):
             quiz[x][y] = quizSolved[x][y]
 
 
-        quiz = (quiz / 9) - 0.5
-    
-    return quiz
 
-def solveSudokuBacktracking(quiz, predict):
+    solutions[0] = quiz
+
+def solveSudokuBacktracking(quiz):
 
     def findNumInRow(arr, row, num):
         for i in range(9):
@@ -112,67 +116,42 @@ def solveSudokuBacktracking(quiz, predict):
         
         return False
     
-    def solveSudokuIA(arr):
-        l = [0,0]
-
-        if not findEmptyCell(arr, l):
-            return True
+    temp = np.array(quiz).reshape((9,9))
+    if solveSudoku(temp): solutions[1] = temp
+    else: solutions[1] = None
         
-        row = l[0]
-        col = l[1]
-
-        arrPredict = predict[col + (row*9)]
-
-        for _ in range(len(arrPredict)):
-            num =  np.argmax(arrPredict) + 1
-            if arrPredict[num-1] >= 0.95:
-                arr[row][col] = num
-            
-                if solveSudoku(arr):
-                    return True
-                
-                arr[row][col] = 0
-
-            elif checkLocationIsSafe(arr, row, col, num):
-                arr[row][col] = num
-            
-                if solveSudoku(arr):
-                    return True
-                
-                arr[row][col] = 0
-            arrPredict[num-1] = 0
-        
-        return False
-
-    if predict is None:
-        if solveSudoku(quiz): return quiz
-        else: return None
-        hola= 1
-    else:
-        if solveSudokuIA(quiz): return quiz
-        else: return None
 
 class Sudoku(APIView):
     def post(self, request):
         quiz = request.data.get('quiz', None)
-        byIA = request.data.get('byIA', None)
         if quiz is None:
-            return Response({'error': 'No se encontró la clave "quiz" en los datos de la solicitud'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        if byIA is None:
-            return Response({'error': 'No se encontró la clave "byIA" en los datos de la solicitud'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': "No se encontró la clave 'quiz' en los datos de la solicitud"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if len(quiz) < 81:
+            return Response({'error': "'quiz' Debe de tener al menos 81 elementos"}, status=status.HTTP_400_BAD_REQUEST)
         
         quiz = list(map(int, list(quiz)))
-        quiz = np.array(quiz).reshape((9,9))
-        solution =  None
 
-        if byIA: 
-            quizModel = (np.array(quiz).reshape(9,9,1)/9) - 0.5
-            predict = model.predict(quizModel.reshape(1,9,9,1)).squeeze()
-            solution = solveSudokuBacktracking(quiz, predict)
-        else: 
-            solution = solveSudokuBacktracking(quiz,None)
-        
-        logging.debug(solution)
-        res = {'solution': solution}
-        return Response(res, status=status.HTTP_200_OK)
+        threadModel = threading.Thread(target=solveSudokuModel, args=(quiz,))
+        threadBacktracking = threading.Thread(target=solveSudokuBacktracking, args=(quiz,))
+
+        threadModel.start()
+        threadBacktracking.start()
+
+        threadModel.join()
+        threadBacktracking.join()
+
+        if solutions[1] is None:
+            logging.debug("El quiz no tiene solucion")
+            return Response({'error': 'El quiz enviado por el usuario no tiene respuesta'}, status=status.HTTP_400_BAD_REQUEST)
+
+        res = {'solution': None}
+
+        if np.array_equal(solutions[0], solutions[1]):
+            logging.debug("El modelo acertó el resultado")
+            res['solution'] = solutions[0]
+            return Response(res, status=status.HTTP_200_OK)
+        else:
+            logging.debug("El modelo falló el resultado")
+            res['solution'] = solutions[1]
+            return Response(res, status=status.HTTP_200_OK)
