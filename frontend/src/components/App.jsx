@@ -1,16 +1,35 @@
 import React from 'react';
-import "../styles/App.css"
+import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import "../styles/App.css";
+import Levels from './Levels';
+import SudokuSolver from './SudokuSolver';
 
 const App = () => {
+  const navigate = useNavigate();
+
+  const handlePlayClick = () => {
+    navigate('/levels');
+  };
+
   return (
     <div className="app-container">
       <h1 className="title">SUDOKU</h1>
       <div className="buttons-container">
-        <button className="play-button">Play</button>
-        <button className="solve-button">Solve</button>
+        <button className="play-button" onClick={handlePlayClick}>Play</button>
+        <button className="solve-button" onClick={() => navigate('/solver')}>Solve</button>
       </div>
     </div>
   );
 };
 
-export default App;
+const AppWrapper = () => (
+  <Router>
+    <Routes>
+      <Route path="/" element={<App />} />
+      <Route path="/levels" element={<Levels />} />
+      <Route path="/solver" element={<SudokuSolver />} />
+    </Routes>
+  </Router>
+);
+
+export default AppWrapper;

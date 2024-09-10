@@ -1,11 +1,11 @@
 .levels-container {
     text-align: center;
     color: #fff;
-    padding: 50px;
+    padding: px;
   }
   
-  h2 {
-    font-size: 3rem;
+  h1 {
+    font-size: 4rem;
     margin-bottom: 30px;
   }
   
@@ -61,11 +61,11 @@
   }
   
   .medium {
-    border-color: #ffeb3b;
+    border-color: #aa9d27;
   }
   
   .medium:hover {
-    background: #ffeb3b;
+    background: #e0cb0e;
     color: #fff;
   }
   
