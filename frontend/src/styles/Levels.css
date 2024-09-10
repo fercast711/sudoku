@@ -1,0 +1,80 @@
+.levels-container {
+    text-align: center;
+    color: #fff;
+    padding: 50px;
+  }
+  
+  h2 {
+    font-size: 3rem;
+    margin-bottom: 30px;
+  }
+  
+  .buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .level-button {
+    background: transparent;
+    border: 3px solid #fff;
+    color: #fff;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 50px;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+  }
+  
+  .level-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    z-index: -1;
+    transition: all 0.3s ease;
+  }
+  
+  .level-button:hover::before {
+    height: 100%;
+  }
+  
+  .level-button:hover {
+    color: #000;
+    background: #fff;
+  }
+  
+  .easy {
+    border-color: #4caf50;
+  }
+  
+  .easy:hover {
+    background: #4caf50;
+    color: #fff;
+  }
+  
+  .medium {
+    border-color: #ffeb3b;
+  }
+  
+  .medium:hover {
+    background: #ffeb3b;
+    color: #fff;
+  }
+  
+  .hard {
+    border-color: #f44336;
+  }
+  
+  .hard:hover {
+    background: #f44336;
+    color: #fff;
+  }
+  

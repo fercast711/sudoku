@@ -1,0 +1,17 @@
+.solver-container {
+    text-align: center;
+    color: #fff;
+    padding: 50px;
+  }
+  
+  h2 {
+    font-size: 3rem;
+    margin-bottom: 30px;
+  }
+  
+  .sudoku-grid {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 10px;
+  }
+  
