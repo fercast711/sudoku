@@ -1,17 +1,74 @@
-.solver-container {
-    text-align: center;
-    color: #fff;
-    padding: 50px;
-  }
-  
-  h2 {
-    font-size: 3rem;
-    margin-bottom: 30px;
-  }
-  
-  .sudoku-grid {
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 20px;
-    border-radius: 10px;
-  }
-  
+.sudoku-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 90vh;
+  background: #f5f5f5;
+  color: #333333;
+  text-align: center;
+}
+
+.sudoku-container h2 {
+  font-family: 'TruenoBd', sans-serif;
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+
+.sudoku-grid {
+  display: grid;
+  grid-template-columns: repeat(9, 40px);
+  grid-template-rows: repeat(9, 40px);
+  gap: 4px;
+  background: #fff;
+  padding: 10px;
+  border: 3px solid #8aea03;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Casillas normales */
+.sudoku-cell {
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  border: 1px solid #ddd;
+  font-size: 18px;
+  font-family: 'Rushk', sans-serif;
+  outline: none;
+  transition: background-color 0.3s ease;
+}
+
+/* Casilla seleccionada */
+.sudoku-cell.highlighted {
+  background-color: #f0f8ff;
+}
+
+/* Bloques de 3x3 */
+.sudoku-grid {
+  border-spacing: 0;
+}
+
+/* Grid en Columnas*/
+.sudoku-grid input:nth-child(3n+1) {
+  border-left: 2px solid #8aea03;
+}
+
+.sudoku-grid input:nth-child(9n+1) {
+  border-left: 0;
+  border-top: 2px solid #8aea03;
+}
+
+/* Grid en Filas*/
+.sudoku-grid input:nth-child(n+19):nth-child(-n+27),
+.sudoku-grid input:nth-child(n+46):nth-child(-n+54) {
+  border-bottom: 2px solid #8aea03;
+}
+
+.sudoku-cell.highlighted {
+  background-color: #e0ffd4;
+}
+
+.sudoku-cell:focus {
+  border-color: #8aea03;
+  background-color: #ffffcc;
+}
