@@ -9,6 +9,7 @@ const SudokuSolver = () => {
   const [selectedCell, setSelectedCell] = useState(null);
   const [gridValues, setGridValues] = useState(Array(81).fill(''));
   const [solution, setSolution] = useState(null);
+  const [score, setScore] = useState(null);
   const [error, setError] = useState(0);
   const navigate = useNavigate();
 
@@ -177,6 +178,7 @@ const SudokuSolver = () => {
         newErrorCells[index] = true;
       } else {
         newErrorCells[index] = false;
+        setScore(prevScore => (prevScore || 0) + 100);
         const SolutionGridConverted = SolutionGrid.map(num => num !== 0 ? num.toString() : '');
         if (SolutionGridConverted.every((value, index) => value === gridValues[index])) {
           setwin(1);
@@ -249,6 +251,10 @@ const SudokuSolver = () => {
   return (
     <div className="sudoku-container">
       <h2>Sudoku Puzzle - {level.charAt(0).toUpperCase() + level.slice(1)} Level</h2>
+      <div className="score-container">
+        <h2>Score</h2>
+        <p>{score}</p>
+      </div>
       <div className="sudoku-grid">{renderGrid()}</div>
       <button className="solve-button" onClick={solveSudoku}>Solve</button>
       {error && <p className="error">{error}</p>}
