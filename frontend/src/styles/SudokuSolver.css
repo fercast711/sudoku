@@ -72,3 +72,9 @@
   border-color: #8aea03;
   background-color: #ffffcc;
 }
+
+.sudoku-cell.incorrect {
+  background-color: #ffcccc; 
+  color: red;                
+}
+
