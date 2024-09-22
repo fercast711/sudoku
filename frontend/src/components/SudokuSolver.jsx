@@ -31,7 +31,7 @@ const SudokuSolver = () => {
           'Content-Type': 'application/json',
         },
          // Enviar el grid
-        body: JSON.stringify({ quiz: gridValues.join('') }),
+        body: JSON.stringify({ quiz: gridValues.map(item => item === "" ? "0" : item).join('')}),
       });
 
       if (response.ok) {
