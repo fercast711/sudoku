@@ -191,8 +191,8 @@ const SudokuSolver = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        // Enviar el grid
-        body: JSON.stringify({ quiz: gridValues.join('') }),
+         // Enviar el grid
+        body: JSON.stringify({ quiz: gridValues.map(item => item === "" ? "0" : item).join('')}),
       });
 
       if (response.ok) {
