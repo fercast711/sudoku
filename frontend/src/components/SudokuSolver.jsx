@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import '../styles/SudokuSolver.css';
 
 const SudokuSolver = () => {
+  const [ErrorCells, setErrorCells] = useState(Array(81).fill(false));
   const [searchParams] = useSearchParams();
   const level = searchParams.get('level') || 'easy'; // 'easy' por defecto si no se proporciona un nivel
   const [selectedCell, setSelectedCell] = useState(null);
@@ -159,18 +160,27 @@ const SudokuSolver = () => {
    */
   const handleCellChange = (row, col, event) => {
     const value = event.target.value;
+    const index = row * 9 + col; 
     if (/^[1-9]$/.test(value) || value === '') { // Permitir solo números del 1 al 9
       const newGridValues = [...gridValues];
       newGridValues[row * 9 + col] = value;
       setGridValues(newGridValues);
       console.log(SolutionGrid);
       //SolutionGrid[row * 9 + col].toString()
-      if (newGridValues[row * 9 + col] !== SolutionGrid[row * 9 + col].toString() && value !== '') {
-        setError(error + 1);
+      const newErrorCells = [...ErrorCells];
+     
+      if (value !== SolutionGrid[index].toString() && value !== '') {
+        if (!newErrorCells[index]) {
+          setError(error + 1); 
+        }
+        newErrorCells[index] = true; 
+      } else {
+        newErrorCells[index] = false; 
       }
+
+      setErrorCells(newErrorCells); 
     }
   };
-
   /**
    * Se conecta con el backend para conseguir una solucion
    */
@@ -212,11 +222,12 @@ const SudokuSolver = () => {
       const col = index % 9;
       const isHighlighted =
         selectedCell && (selectedCell.row === row || selectedCell.col === col);
+        const IsError = ErrorCells[index];
 
       return (
         <input
           key={index}
-          className={`sudoku-cell ${isHighlighted ? 'highlighted' : ''}`}
+          className={`sudoku-cell ${isHighlighted ? 'highlighted' : ''} ${IsError ? 'incorrect' : ''}`}
           value={value}
           onClick={() => handleCellClick(row, col)}
           onChange={(e) => handleCellChange(row, col, e)}
