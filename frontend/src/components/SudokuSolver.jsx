@@ -17,9 +17,14 @@ const SudokuSolver = () => {
    */
   const generateSolutionGrid = useEffect(() => {
 
-    /**
-     * Al generar la funcion verifica que estas este dentro de las reglas de sudoku
-     */
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
     function isSafe(grid, index, num) {
       let row = Math.floor(index / 9);
       let col = index % 9;
@@ -42,55 +47,98 @@ const SudokuSolver = () => {
       return true;
     }
 
-    /**
-     * rellena con numeros aleatorio la funcion
-     * @param {*} grid 
-     */
-    function fillGrid(grid) {
+    // Función asíncrona que se usará para no bloquear el hilo principal
+    async function fillGrid(grid) {
       for (let i = 0; i < 81; i++) {
-        let num = Math.floor(Math.random() * 9) + 1;
-        let attempts = 0;
+        if (grid[i] === 0) {
+          let numbers = shuffleArray([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+          for (let num of numbers) {
+            if (isSafe(grid, i, num)) {
+              grid[i] = num;
 
-        while (!isSafe(grid, i, num) && attempts < 50) {
-          num = Math.floor(Math.random() * 9) + 1;
-          attempts++;
-        }
+              if (await fillGrid(grid)) {
+                return true;
+              }
 
-        if (attempts < 1000) {
-          grid[i] = num;
+              grid[i] = 0;
+            }
+          }
+          return false;
         }
       }
+      return true;
     }
 
-    /**
-     * Elimina elementos dependiendo de la dificultad para poder iniciar el juego
-     * @param {Int8Array} grid 
-     * @param {int} difficulty 
-     */
-    function removeElements(grid, difficulty) {
-      let remainingCells = difficulty; // Cuantos números dejar visibles
+    function hasUniqueSolution(grid) {
+      let solutions = 0;
+
+      function solve(grid) {
+        for (let i = 0; i < 81; i++) {
+          if (grid[i] === 0) {
+            for (let num = 1; num <= 9; num++) {
+              if (isSafe(grid, i, num)) {
+                grid[i] = num;
+                if (solve(grid)) {
+                  solutions++;
+                  if (solutions > 1) return false;
+                }
+                grid[i] = 0;
+              }
+            }
+            return false;
+          }
+        }
+        return true;
+      }
+
+      solve([...grid]);
+      return solutions === 1;
+    }
+
+    async function removeElements(grid, difficulty) {
+      let remainingCells = difficulty;
+      let tempGrid = [...grid];
+
       while (remainingCells > 0) {
         let index = Math.floor(Math.random() * 81);
 
-        if (grid[index] !== 0) {
-          grid[index] = 0;
-          remainingCells--;
+        if (tempGrid[index] !== 0) {
+          let backup = tempGrid[index];
+          tempGrid[index] = 0;
+
+          if (hasUniqueSolution(tempGrid)) {
+            grid[index] = 0;
+            remainingCells--;
+          } else {
+            tempGrid[index] = backup;
+          }
         }
+
+        // Añadir un pequeño retraso para no bloquear la interfaz
+        await new Promise(resolve => setTimeout(resolve, 0));
       }
-    };
-    const run = () => {
-      let tempGridSolution = Array(81);
-      fillGrid(tempGridSolution);
+    }
+
+    const run = async () => {
+      let tempGridSolution = Array(81).fill(0);
+      await fillGrid(tempGridSolution);
       console.log(tempGridSolution);
+
       setSolutionGrid(tempGridSolution);
       let tempGridGame = [...tempGridSolution];
-      removeElements(tempGridGame, 20);
+
+      let num = 20;
+      if (level === 'easy') num = 20;
+      if (level === 'medium') num = 40;
+      if (level === 'hard') num = 50;
+
+      await removeElements(tempGridGame, num);
+
       const convertedGrid = tempGridGame.map(num => num !== 0 ? num.toString() : '');
       setGridValues(convertedGrid);
     };
+
     run();
-
-
   }, []);
 
 
