@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import Levels from './Levels';
 import SudokuSolver from './SudokuSolver';
+import Victory from './Victory';
 import "../styles/App.css";
 
 const App = () => {
@@ -24,6 +25,7 @@ const AppWrapper = () => (
       <Route path="/" element={<App />} />
       <Route path="/levels" element={<Levels />} />
       <Route path="/solver" element={<SudokuSolver />} />
+      <Route path="/victory" element={<Victory />} />
     </Routes>
   </Router>
 );

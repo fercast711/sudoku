@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import '../styles/SudokuSolver.css';
 
 const SudokuSolver = () => {
@@ -10,6 +10,7 @@ const SudokuSolver = () => {
   const [gridValues, setGridValues] = useState(Array(81).fill(''));
   const [solution, setSolution] = useState(null);
   const [error, setError] = useState(0);
+  const navigate = useNavigate();
 
   const [SolutionGrid, setSolutionGrid] = useState(Array(81).fill(0));
 
@@ -160,7 +161,7 @@ const SudokuSolver = () => {
    */
   const handleCellChange = (row, col, event) => {
     const value = event.target.value;
-    const index = row * 9 + col; 
+    const index = row * 9 + col;
     if (/^[1-9]$/.test(value) || value === '') { // Permitir solo números del 1 al 9
       const newGridValues = [...gridValues];
       newGridValues[row * 9 + col] = value;
@@ -168,17 +169,21 @@ const SudokuSolver = () => {
       console.log(SolutionGrid);
       //SolutionGrid[row * 9 + col].toString()
       const newErrorCells = [...ErrorCells];
-     
+
       if (value !== SolutionGrid[index].toString() && value !== '') {
         if (!newErrorCells[index]) {
-          setError(error + 1); 
+          setError(error + 1);
         }
-        newErrorCells[index] = true; 
+        newErrorCells[index] = true;
       } else {
-        newErrorCells[index] = false; 
+        newErrorCells[index] = false;
+        const SolutionGridConverted = SolutionGrid.map(num => num !== 0 ? num.toString() : '');
+        if (SolutionGridConverted.every((value, index) => value === gridValues[index])) {
+          setwin(1);
+          navigate('/victory');
+        }
       }
-
-      setErrorCells(newErrorCells); 
+      setErrorCells(newErrorCells);
     }
   };
   /**
