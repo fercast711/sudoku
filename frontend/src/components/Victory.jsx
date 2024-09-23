@@ -1,9 +1,11 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import "../styles/Victory.css";
 
 const Victory = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const score = location.state?.score || 0; // Obtener el score del estado de la navegación
 
   return (
     <div className="victory-container">
@@ -13,6 +15,8 @@ const Victory = () => {
         title="Lottie Animation"
       ></iframe>
       <h1 className="titleVictory">You have Won!</h1>
+      <h2 className="score">Your Score: {score}</h2>
+      <button className="restart-button" onClick={() => navigate('/')}>Victory Royale! Play Again</button>
     </div>
   );
 };
