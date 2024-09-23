@@ -142,7 +142,7 @@ const SudokuSolver = () => {
       let tempGridGame = [...tempGridSolution];
 
       let num = 20;
-      if (level === 'easy') num = 1;
+      if (level === 'easy') num = 20;
       if (level === 'medium') num = 40;
       if (level === 'hard') num = 50;
 
@@ -190,6 +190,11 @@ const SudokuSolver = () => {
       if (value !== SolutionGrid[index].toString() && value !== '') {
         if (!newErrorCells[index]) {
           setError(error + 1);
+          setScore(prevScore => {
+            const currentScore = prevScore !== null ? prevScore : 0;
+            const newScore = currentScore - 1000;
+            return newScore < 0 ? 0 : newScore;
+          });
         }
         newErrorCells[index] = true;
       } else if (value !== '') {
