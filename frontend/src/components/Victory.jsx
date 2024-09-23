@@ -13,6 +13,7 @@ const Victory = () => {
         title="Lottie Animation"
       ></iframe>
       <h1 className="titleVictory">You have Won!</h1>
+      <button className="restart-button" onClick={() => navigate('/')}>Victory Royale! Play Again</button>
     </div>
   );
 };

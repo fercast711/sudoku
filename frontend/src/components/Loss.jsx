@@ -13,6 +13,7 @@ const Loss = () => {
         title="Lottie Animation"
       ></iframe>
       <h1 className="titleLoss">You have Lost</h1>
+      <button className="restart-button" onClick={() => navigate('/')}>Go Home...</button>
     </div>
   );
 };
