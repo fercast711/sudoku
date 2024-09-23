@@ -277,6 +277,7 @@ const SudokuSolver = () => {
         </div>
       )}
       <div className="sudoku-grid">{renderGrid()}</div>
+      <div> </div>
       {level === "not" && <button className="solve-button" onClick={solveSudoku}>Solve</button>}
       {error && <p className="error">{error}</p>}
     </div>

@@ -3,7 +3,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 90vh;
+  height: 100vh;
   background: #f5f5f5;
   color: #333333;
   text-align: center;
@@ -87,7 +87,7 @@
   color: rgb(203, 250, 235);
   background-color: #2a5298;
   padding: 10px;
-  border-radius: 8px;
+  border-radius: 20px;
   /* Optional: Rounded corners */
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
   /* Optional: Add shadow for depth */
@@ -99,4 +99,15 @@
   opacity: 1;
   cursor: default;
   border: 1px solid #ccc;
+}
+
+/* Números autogenerados (negros) */
+.sudoku-cell.auto-generated {
+  color: black;
+  font-weight: bold; /* Opción para resaltar */
+}
+
+/* Números ingresados por el usuario (gris) */
+.sudoku-cell.user-input {
+  color: grey;
 }
