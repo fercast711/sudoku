@@ -147,7 +147,7 @@ const SudokuSolver = () => {
       let tempGridGame = [...tempGridSolution];
 
       let num = 20;
-      if (level === 'easy') num = 20;
+      if (level === 'easy') num = 3;
       if (level === 'medium') num = 40;
       if (level === 'hard') num = 50;
 
@@ -164,6 +164,16 @@ const SudokuSolver = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (!gameStarted) return;
+  
+    const SolutionGridConverted = SolutionGrid.map(num => num !== 0 ? num.toString() : '');
+    if (SolutionGridConverted.length === gridValues.length &&
+      SolutionGridConverted.every((value, index) => value === gridValues[index])) {
+      navigate('/victory', { state: { score } }); // Pasar el score al navegar
+    }
+  }, [gridValues, SolutionGrid]);
+  
 
   /**
    * Se ejecuta cada vez que hacen click
