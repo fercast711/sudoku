@@ -12,6 +12,8 @@ const SudokuSolver = () => {
   const [score, setScore] = useState(null);
   const [error, setError] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
+  const [disabledSolve, setDisabledSolve] = useState(false);
+  const [solved, setSolved] = useState("Solve")
   const navigate = useNavigate();
 
   const [SolutionGrid, setSolutionGrid] = useState(Array(81).fill(0));
@@ -222,6 +224,9 @@ const SudokuSolver = () => {
    */
   const solveSudoku = async () => {
     try {
+      setDisabledSolve(true);
+      setSolved("Solving...");
+      setError(0);
       const response = await fetch('http://localhost:8000/api/sudoku/', {
         method: 'POST',
         headers: {
@@ -236,14 +241,21 @@ const SudokuSolver = () => {
         if (data.solution) {
           // Actualizar el grid con la solución
           setSolution(data.solution.flat());
+          setSolved("Solved!!!!");
         } else {
+          setDisabledSolve(false);
+          setSolved("Solve");
           setError('No se pudo resolver el Sudoku');
         }
       } else {
         const errorData = await response.json();
+        setDisabledSolve(false);
+        setSolved("Solve");
         setError(errorData.error || 'Error en el servidor');
       }
     } catch (error) {
+      setDisabledSolve(false);
+      setSolved("Solve");
       setError('Error de conexión con el servidor');
     }
   };
@@ -287,8 +299,10 @@ const SudokuSolver = () => {
         </div>
       )}
       <div className="sudoku-grid">{renderGrid()}</div>
-      {level === "not" && <button className="solve-button" onClick={solveSudoku}>Solve</button>}
-      {error && <p className="error">{error}</p>}
+      <div> </div>
+      {level === "not" && <button disabled={disabledSolve} className="solve-button" onClick={solveSudoku}>{solved}</button>}
+      {typeof error === 'string' && <p className="error">{error}</p>}
+      {level !== "not" && typeof error === 'number' && <p className="error">Count of errors: {error}</p>}
     </div>
   );
 };
