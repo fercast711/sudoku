@@ -12,7 +12,7 @@ const Victory = () => {
         className="lottieStyle"
         title="Lottie Animation"
       ></iframe>
-      <h1 className="title">You have Won!</h1>
+      <h1 className="titleVictory">You have Won!</h1>
     </div>
   );
 };

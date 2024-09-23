@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-route
 import Levels from './Levels';
 import SudokuSolver from './SudokuSolver';
 import Victory from './Victory';
+import Loss from './Loss';
 import "../styles/App.css";
 
 const App = () => {
@@ -26,6 +27,7 @@ const AppWrapper = () => (
       <Route path="/levels" element={<Levels />} />
       <Route path="/solver" element={<SudokuSolver />} />
       <Route path="/victory" element={<Victory />} />
+      <Route path="/loss" element={<Loss />} />
     </Routes>
   </Router>
 );
