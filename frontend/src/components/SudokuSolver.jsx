@@ -267,13 +267,14 @@ const SudokuSolver = () => {
   return (
     <div className="sudoku-container">
       <h2>Sudoku Puzzle - {level.charAt(0).toUpperCase() + level.slice(1)} Level</h2>
-      <div className="score-container">
-        <h2>Score</h2>
-        <p>{score}</p>
-      </div>
+      {level !== "not" && (
+        <div className="score-container">
+          <h2>Score</h2>
+          <p>{score}</p>
+        </div>
+      )}
       <div className="sudoku-grid">{renderGrid()}</div>
-      <button className="solve-button" onClick={() => navigate('/Loss')}>lost</button>
-      <button className="solve-button" onClick={solveSudoku}>Solve</button>
+      {level === "not" && <button className="solve-button" onClick={solveSudoku}>Solve</button>}
       {error && <p className="error">{error}</p>}
     </div>
   );
