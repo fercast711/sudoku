@@ -267,6 +267,7 @@ const SudokuSolver = () => {
         <p>{score}</p>
       </div>
       <div className="sudoku-grid">{renderGrid()}</div>
+      <button className="solve-button" onClick={() => navigate('/Loss')}>lost</button>
       <button className="solve-button" onClick={solveSudoku}>Solve</button>
       {error && <p className="error">{error}</p>}
     </div>
