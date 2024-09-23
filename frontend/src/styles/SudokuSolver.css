@@ -101,13 +101,12 @@
   border: 1px solid #ccc;
 }
 
-/* Números autogenerados (negros) */
 .sudoku-cell.auto-generated {
   color: black;
-  font-weight: bold; /* Opción para resaltar */
+  font-weight: bold; /* Resaltar números autogenerados */
 }
 
-/* Números ingresados por el usuario (gris) */
 .sudoku-cell.user-input {
-  color: grey;
+  color: grey; /* Números ingresados por el usuario */
 }
+
