@@ -14,6 +14,37 @@ logging.basicConfig(format=fmt, level=lvl)
 model = load_model("api/model_save.keras")
 solutions = [None, None]
 
+def isValidSudoku(dashboard):
+    arr = np.array(dashboard).reshape((9,9))
+
+    for row in arr:
+        if not isValidUnit(row):
+            return False
+
+    for col in range(9):
+        if not isValidUnit([arr[row][col] for row in range(9)]):
+            return False
+
+    for boxRow in range(3):
+        for boxCol in range(3):
+            box = []
+            for i in range(3):
+                for j in range(3):
+                    box.append(arr[boxRow * 3 + i][boxCol * 3 + j])
+            if not isValidUnit(box):
+                return False
+
+    return True
+
+def isValidUnit(unit):
+    seen = set()
+    for num in unit:
+        if num != 0:
+            if num in seen:
+                return False
+            seen.add(num)
+    return True
+
 def solveSudokuModel(quiz):
     quiz = np.array(quiz).reshape(9,9)
     while True:
@@ -131,6 +162,10 @@ class Sudoku(APIView):
             return Response({'error': "'quiz' Debe de tener al menos 81 elementos"}, status=status.HTTP_400_BAD_REQUEST)
         
         quiz = list(map(int, list(quiz)))
+
+        if not isValidSudoku(quiz):
+            logging.debug("El quiz no tiene solucion")
+            return Response({'error': 'El quiz enviado por el usuario no tiene respuesta'}, status=status.HTTP_400_BAD_REQUEST)
 
         threadModel = threading.Thread(target=solveSudokuModel, args=(quiz,))
         threadBacktracking = threading.Thread(target=solveSudokuBacktracking, args=(quiz,))
