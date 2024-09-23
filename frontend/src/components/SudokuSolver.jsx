@@ -5,12 +5,13 @@ import '../styles/SudokuSolver.css';
 const SudokuSolver = () => {
   const [ErrorCells, setErrorCells] = useState(Array(81).fill(false));
   const [searchParams] = useSearchParams();
-  const level = searchParams.get('level') || 'easy'; // 'easy' por defecto si no se proporciona un nivel
+  const level = searchParams.get('level') || 'not'; // 'easy' por defecto si no se proporciona un nivel
   const [selectedCell, setSelectedCell] = useState(null);
   const [gridValues, setGridValues] = useState(Array(81).fill(''));
   const [solution, setSolution] = useState(null);
   const [score, setScore] = useState(null);
   const [error, setError] = useState(0);
+  const [gameStarted, setGameStarted] = useState(false);
   const navigate = useNavigate();
 
   const [SolutionGrid, setSolutionGrid] = useState(Array(81).fill(0));
@@ -18,7 +19,20 @@ const SudokuSolver = () => {
   /**
    * Se Ejecuta al ingresar
    */
-  const generateSolutionGrid = useEffect(() => {
+
+  useEffect(() => {
+
+    if (!gameStarted) return;
+
+    const SolutionGridConverted = SolutionGrid.map(num => num !== 0 ? num.toString() : '');
+    if (SolutionGridConverted.length === gridValues.length &&
+      SolutionGridConverted.every((value, index) => value === gridValues[index])) {
+      navigate('/victory');
+    }
+  }, [gridValues, SolutionGrid]);
+
+
+  useEffect(() => {
 
     function shuffleArray(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -50,7 +64,6 @@ const SudokuSolver = () => {
       return true;
     }
 
-    // Función asíncrona que se usará para no bloquear el hilo principal
     async function fillGrid(grid) {
       for (let i = 0; i < 81; i++) {
         if (grid[i] === 0) {
@@ -117,7 +130,6 @@ const SudokuSolver = () => {
           }
         }
 
-        // Añadir un pequeño retraso para no bloquear la interfaz
         await new Promise(resolve => setTimeout(resolve, 0));
       }
     }
@@ -125,23 +137,26 @@ const SudokuSolver = () => {
     const run = async () => {
       let tempGridSolution = Array(81).fill(0);
       await fillGrid(tempGridSolution);
-      console.log(tempGridSolution);
 
       setSolutionGrid(tempGridSolution);
       let tempGridGame = [...tempGridSolution];
 
       let num = 20;
-      if (level === 'easy') num = 20;
+      if (level === 'easy') num = 1;
       if (level === 'medium') num = 40;
       if (level === 'hard') num = 50;
 
       await removeElements(tempGridGame, num);
 
       const convertedGrid = tempGridGame.map(num => num !== 0 ? num.toString() : '');
-      setGridValues(convertedGrid);
+      await setGridValues(convertedGrid);
+      setGameStarted(true);
     };
 
-    run();
+    if (level !== 'not') {
+      run();
+      console.log('gamestarted');
+    }
   }, []);
 
 
@@ -161,29 +176,25 @@ const SudokuSolver = () => {
    * @param {*} event 
    */
   const handleCellChange = (row, col, event) => {
+
+
     const value = event.target.value;
     const index = row * 9 + col;
     if (/^[1-9]$/.test(value) || value === '') { // Permitir solo números del 1 al 9
       const newGridValues = [...gridValues];
       newGridValues[row * 9 + col] = value;
       setGridValues(newGridValues);
-      console.log(SolutionGrid);
-      //SolutionGrid[row * 9 + col].toString()
-      const newErrorCells = [...ErrorCells];
 
+      if (!gameStarted) return;
+      const newErrorCells = [...ErrorCells];
       if (value !== SolutionGrid[index].toString() && value !== '') {
         if (!newErrorCells[index]) {
           setError(error + 1);
         }
         newErrorCells[index] = true;
-      } else {
+      } else if (value !== '') {
         newErrorCells[index] = false;
         setScore(prevScore => (prevScore || 0) + 100);
-        const SolutionGridConverted = SolutionGrid.map(num => num !== 0 ? num.toString() : '');
-        if (SolutionGridConverted.every((value, index) => value === gridValues[index])) {
-          setwin(1);
-          navigate('/victory');
-        }
       }
       setErrorCells(newErrorCells);
     }
@@ -198,8 +209,8 @@ const SudokuSolver = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-         // Enviar el grid
-        body: JSON.stringify({ quiz: gridValues.map(item => item === "" ? "0" : item).join('')}),
+        // Enviar el grid
+        body: JSON.stringify({ quiz: gridValues.map(item => item === "" ? "0" : item).join('') }),
       });
 
       if (response.ok) {
@@ -229,8 +240,8 @@ const SudokuSolver = () => {
       const col = index % 9;
       const isHighlighted =
         selectedCell && (selectedCell.row === row || selectedCell.col === col);
-        const IsError = ErrorCells[index];
-
+      const IsError = ErrorCells[index];
+      const isCorrectValue = SolutionGrid[index] !== 0 && SolutionGrid[index].toString() === value && gameStarted;
       return (
         <input
           key={index}
@@ -242,7 +253,7 @@ const SudokuSolver = () => {
           maxLength="1"
 
           // Deshabilitar inputs si ya hay una solución
-          disabled={!!solution}
+          disabled={!!solution || isCorrectValue}
         />
       );
     });
