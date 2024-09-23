@@ -19,6 +19,11 @@ const SudokuSolver = () => {
   /**
    * Se Ejecuta al ingresar
    */
+  useEffect(() => {
+    if (error >= 3) {
+      navigate('/loss');
+    }
+  }, [error])
 
   useEffect(() => {
 
@@ -188,14 +193,12 @@ const SudokuSolver = () => {
       if (!gameStarted) return;
       const newErrorCells = [...ErrorCells];
       if (value !== SolutionGrid[index].toString() && value !== '') {
-        if (!newErrorCells[index]) {
-          setError(error + 1);
-          setScore(prevScore => {
-            const currentScore = prevScore !== null ? prevScore : 0;
-            const newScore = currentScore - 1000;
-            return newScore < 0 ? 0 : newScore;
-          });
-        }
+        setError(error + 1);
+        setScore(prevScore => {
+          const currentScore = prevScore !== null ? prevScore : 0;
+          const newScore = currentScore - 1000;
+          return newScore < 0 ? 0 : newScore;
+        });
         newErrorCells[index] = true;
       } else if (value !== '') {
         newErrorCells[index] = false;
